@@ -1,13 +1,13 @@
 # SecureDocs - Sistema de Gestion de Expedientes con RBAC y ABAC
 
-Laboratorio de Cloud Security - Seguridad en la nube (Tecsup).
+Laboratorio de **Cloud Security - Seguridad en la nube** (Tecsup).
 
-SecureDocs es una API REST para administrar documentos y expedientes de la empresa ficticia TechCorp S.A. La autorizacion se hace en dos etapas:
+SecureDocs es una API REST para administrar documentos y expedientes de la empresa ficticia **TechCorp S.A.** La autorizacion se hace en dos etapas:
 
-- RBAC (Role-Based Access Control): que puede hacer un usuario por su rol.
-- ABAC (Attribute-Based Access Control): si puede hacerlo en estas condiciones especificas (departamento, nivel de seguridad, pais, hora, dispositivo, estado, etc.).
+- **RBAC (Role-Based Access Control):** que puede hacer un usuario por su rol.
+- **ABAC (Attribute-Based Access Control):** si puede hacerlo en estas condiciones especificas (departamento, nivel de seguridad, pais, hora, dispositivo, estado, etc.).
 
-El acceso solo se permite cuando RBAC = PERMITIDO y ABAC = PERMITIDO. Cada intento queda registrado en la auditoria.
+El acceso solo se permite cuando **RBAC = PERMITIDO y ABAC = PERMITIDO**. Cada intento queda registrado en la auditoria.
 
 ---
 
@@ -16,8 +16,6 @@ El acceso solo se permite cuando RBAC = PERMITIDO y ABAC = PERMITIDO. Cada inten
 | Nombre | Rol en el proyecto |
 |---|---|
 | Junior | Desarrollo backend, RBAC, ABAC, pruebas |
-| (completar) | |
-| (completar) | |
 
 ---
 
@@ -72,7 +70,7 @@ El servidor queda disponible en `http://localhost:3000`.
 | `npm run dev` | Inicia el servidor y lo reinicia al guardar cambios |
 | `npm start` | Inicia el servidor en modo normal |
 | `npm run seed` | Borra y vuelve a crear los datos de prueba |
-| `npm run test:casos` | Ejecuta los 17 casos de prueba (el servidor debe estar corriendo) |
+| `npm test` | Ejecuta los 17 casos de prueba (el servidor debe estar corriendo) |
 
 ### Usuarios de prueba
 
@@ -94,100 +92,51 @@ Todos usan la contrasena `123456`.
 
 ## Diagrama de arquitectura
 
-```
-Usuario / Navegador
-        |
-        v
-Frontend (public/)
-        |
-        |  HTTP + token JWT
-        v
-REST API - Express (src/server.js)
-        |
-        |-------- Entorno middleware      hora, IP, ubicacion, dispositivo
-        |
-        |-------- Authentication          login, logout, JWT         (src/auth)
-        |
-        |-------- Authorization Service   punto unico de decision    (src/authorization)
-        |              |
-        |              |-------- RBAC Service         rol -> permisos -> operacion
-        |              |
-        |              `-------- ABAC Policy Engine   8 politicas centralizadas
-        |
-        |-------- Document Service        CRUD y aprobacion          (src/services)
-        |
-        |-------- User Service            registro, roles, estado    (src/services)
-        |
-        `-------- Audit Service           registro de cada acceso    (src/services)
-                       |
-                       v
-               Base de datos SQLite (securedocs.db)
-```
+![Diagrama de arquitectura](docs/diagramas/arquitectura.png)
 
 ### Flujo de autorizacion (punto 7 del laboratorio)
 
-```
-Usuario solicita operacion
-            |
-            v
-   Autenticacion (JWT)
-            |
-            v
- Usuario valido y ACTIVO? ---- NO ----> DENEGAR (etapa AUTENTICACION)
-            |
-            SI
-            v
- RBAC: el rol tiene el permiso? ---- NO ----> DENEGAR (etapa RBAC)
-            |
-            SI
-            v
- ABAC: cumple todas las politicas? ---- NO ----> DENEGAR (etapa ABAC)
-            |
-            SI
-            v
-        AUTORIZAR
-
-Todas las decisiones (permitidas y denegadas) se guardan en la auditoria.
-```
+![Flujo de autorizacion](docs/diagramas/flujo_autorizacion.png)
 
 ### Estructura del proyecto
 
 ```
 securedocs/
-|-- src/
-|   |-- server.js                         # Punto de entrada
-|   |-- db/
-|   |   |-- database.js                   # Conexion y creacion de tablas
-|   |   `-- seed.js                       # Datos de prueba y matriz RBAC
-|   |-- auth/                             # AUTHENTICATION
-|   |   |-- auth.service.js               # Login, JWT, logout
-|   |   `-- auth.middleware.js            # Verifica el token en cada peticion
-|   |-- authorization/                    # AUTHORIZATION
-|   |   |-- acciones.js                   # Catalogo de acciones -> permiso
-|   |   |-- authorization.service.js      # Decision final RBAC + ABAC
-|   |   |-- authorize.middleware.js       # Guardias para las rutas
-|   |   |-- rbac/
-|   |   |   `-- rbac.service.js           # Motor RBAC
-|   |   `-- abac/
-|   |       |-- politicas.js              # Las 8 politicas (centralizadas)
-|   |       |-- abac.engine.js            # Motor ABAC
-|   |       `-- entorno.middleware.js     # Atributos del entorno
-|   |-- services/                         # Acceso a datos
-|   |   |-- usuario.service.js
-|   |   |-- documento.service.js
-|   |   `-- auditoria.service.js
-|   `-- routes/                           # Endpoints REST
-|       |-- auth.routes.js
-|       |-- rbac.routes.js
-|       |-- abac.routes.js
-|       |-- documentos.routes.js
-|       |-- usuarios.routes.js
-|       `-- auditoria.routes.js
-|-- public/                               # Frontend
-|-- tests/
-|   `-- casos.test.js                     # 17 casos de prueba
-`-- docs/
-    `-- evidencias/                       # Capturas y resultados
+├── src/
+│   ├── server.js                         # Punto de entrada
+│   ├── db/
+│   │   ├── database.js                   # Conexion y creacion de tablas
+│   │   └── seed.js                       # Datos de prueba y matriz RBAC
+│   ├── auth/                             # AUTHENTICATION
+│   │   ├── auth.service.js               # Login, JWT, logout
+│   │   └── auth.middleware.js            # Verifica el token en cada peticion
+│   ├── authorization/                    # AUTHORIZATION
+│   │   ├── acciones.js                   # Catalogo de acciones -> permiso
+│   │   ├── authorization.service.js      # Decision final RBAC + ABAC
+│   │   ├── authorize.middleware.js       # Guardias para las rutas
+│   │   ├── rbac/
+│   │   │   └── rbac.service.js           # Motor RBAC
+│   │   └── abac/
+│   │       ├── politicas.js              # Las 8 politicas (centralizadas)
+│   │       ├── abac.engine.js            # Motor ABAC
+│   │       └── entorno.middleware.js     # Atributos del entorno
+│   ├── services/                         # Acceso a datos
+│   │   ├── usuario.service.js
+│   │   ├── documento.service.js
+│   │   └── auditoria.service.js
+│   └── routes/                           # Endpoints REST
+│       ├── auth.routes.js
+│       ├── rbac.routes.js
+│       ├── abac.routes.js
+│       ├── documentos.routes.js
+│       ├── usuarios.routes.js
+│       └── auditoria.routes.js
+├── public/                               # Frontend
+├── tests/
+│   └── casos.test.js                     # 17 casos de prueba
+└── docs/
+    ├── diagramas/                        # Arquitectura, flujo y modelo de BD
+    └── evidencias/                       # Capturas y resultados
 ```
 
 Ninguna ruta contiene condicionales del tipo `if (rol == "ADMIN")`. Cada ruta declara la accion que necesita, por ejemplo `requierePermisoSobreDocumento('UPDATE')`, y el motor de autorizacion decide (punto 16 del laboratorio).
@@ -196,51 +145,7 @@ Ninguna ruta contiene condicionales del tipo `if (rol == "ADMIN")`. Cada ruta de
 
 ## Modelo de base de datos
 
-Relaciones:
-
-```
-Usuario
-   |
-   +---- Rol
-   |       |
-   |       +---- RolPermiso
-   |                 |
-   |                 +---- Permiso
-   |
-   +---- Departamento
-
-Documento
-   |
-   +---- Departamento
-   |
-   +---- Propietario (Usuario)
-
-Politica   (tabla independiente: activa o desactiva cada politica ABAC)
-Auditoria  (tabla independiente: registro de cada intento de acceso)
-```
-
-Cardinalidad:
-
-| Relacion | Tipo |
-|---|---|
-| Rol - Usuario | Un rol tiene muchos usuarios |
-| Departamento - Usuario | Un departamento tiene muchos usuarios |
-| Departamento - Documento | Un departamento tiene muchos documentos |
-| Usuario - Documento | Un usuario es propietario de muchos documentos |
-| Rol - Permiso | Muchos a muchos, a traves de RolPermiso |
-
-Tablas y columnas:
-
-| Tabla | Columnas |
-|---|---|
-| departamentos | id (PK), nombre (UNIQUE) |
-| roles | id (PK), nombre (UNIQUE), descripcion |
-| permisos | id (PK), codigo (UNIQUE), descripcion |
-| rol_permiso | rol_id (PK, FK roles), permiso_id (PK, FK permisos) |
-| usuarios | id (PK), usuario (UNIQUE), nombre, correo (UNIQUE), password (bcrypt), rol_id (FK roles), departamento_id (FK departamentos), nivel_seguridad, pais, tipo_contrato, estado |
-| documentos | id (PK), titulo, descripcion, propietario (FK usuarios), departamento_id (FK departamentos), nivel_confidencialidad, estado, pais, fecha_creacion |
-| politicas | id (PK), codigo (UNIQUE), nombre, descripcion, activa |
-| auditoria | id (PK), usuario, recurso, accion, fecha, resultado, motivo, direccion_ip |
+![Modelo de base de datos](docs/diagramas/modelo_bd.png)
 
 Restricciones principales (CHECK en la base de datos):
 
@@ -266,7 +171,9 @@ Se guarda en la tabla `rol_permiso`. Para cambiar un permiso no se modifica el c
 | Gestionar usuarios | USUARIOS_GESTIONAR | SI | NO | NO | NO | NO | NO |
 | Asignar roles | ROLES_ASIGNAR | SI | NO | NO | NO | NO | NO |
 
-Evidencia obtenida del sistema (`GET /rbac/matriz`): archivo `docs/evidencias/matriz_rbac.png`.
+Evidencia obtenida del sistema (`GET /rbac/matriz`):
+
+![Matriz RBAC](docs/evidencias/matriz_rbac.png)
 
 ---
 
@@ -287,7 +194,9 @@ Todas las politicas estan en un solo archivo: `src/authorization/abac/politicas.
 
 Acciones de documentos: CREATE, READ, UPDATE, DELETE, APPROVE.
 
-Evidencia obtenida del sistema (`GET /abac/politicas`): archivo `docs/evidencias/matriz_abac.png`.
+Evidencia obtenida del sistema (`GET /abac/politicas`):
+
+![Matriz ABAC](docs/evidencias/matriz_abac.png)
 
 ### Atributos del entorno
 
@@ -345,7 +254,7 @@ Ejemplo de respuesta de acceso denegado:
 
 ## Casos de prueba
 
-Se ejecutan todos juntos con `npm run test:casos`. El script reinicia la base de datos, llama a la API real y compara el resultado esperado con el obtenido. El detalle con el motivo de cada decision se guarda en `docs/evidencias/resultados_pruebas.md`.
+Se ejecutan todos juntos con `npm test`. El script reinicia la base de datos, llama a la API real y compara el resultado esperado con el obtenido. El detalle con el motivo de cada decision se guarda en [docs/evidencias/resultados_pruebas.md](docs/evidencias/resultados_pruebas.md).
 
 ### 12 casos obligatorios
 
@@ -374,13 +283,15 @@ Se ejecutan todos juntos con `npm run test:casos`. El script reinicia la base de
 | 16 | Auditor consulta un documento de otra area | Permitido | Excepcion de P1 para AUDITOR |
 | 17 | Empleado intenta ver la auditoria | Denegado por RBAC | Sin AUDITORIA_VER |
 
-Resultado obtenido: 17 de 17 casos correctos. Captura de la ejecucion: archivo `docs/evidencias/pruebas.png`.
+Resultado obtenido: **17 de 17 casos correctos**.
+
+![Casos de prueba](docs/evidencias/pruebas.png)
 
 ---
 
 ## Registro de auditoria
 
-Cada intento de acceso, permitido o denegado, se guarda en la tabla `auditoria` con: quien hizo la solicitud, que recurso pidio, que operacion intento, fecha y hora, resultado y motivo.
+Cada intento de acceso, permitido o denegado, se guarda en la tabla `auditoria` con: quien hizo la solicitud, que recurso pidio, que operacion intento, fecha y hora, resultado y motivo. Se consulta con `GET /auditoria` (roles ADMINISTRADOR, GERENTE y AUDITOR).
 
 Ejemplo de registro:
 
@@ -395,8 +306,4 @@ Ejemplo de registro:
 }
 ```
 
-Evidencias:
-
-- Captura del registro: `docs/evidencias/auditoria.png`
-- Captura de control de acceso a la auditoria: `docs/evidencias/auditoria_acceso.png`
-- Registro completo exportado: `docs/evidencias/auditoria_completa.csv`
+Registro completo exportado desde el sistema (45 registros, permitidos y denegados): [docs/evidencias/auditoria_completa.csv](docs/evidencias/auditoria_completa.csv)
