@@ -1,9 +1,11 @@
 require('dotenv').config();
 const express = require('express');
+const entorno = require('./authorization/abac/entorno.middleware');
 
 const app = express();
 app.use(express.json());
 app.use(express.static('public'));
+app.use(entorno);
 
 app.get('/api/salud', (req, res) => {
   res.json({ mensaje: 'SecureDocs funcionando' });
