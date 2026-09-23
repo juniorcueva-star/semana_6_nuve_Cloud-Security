@@ -9,4 +9,15 @@ function registrar({ usuario, recurso, accion, resultado, motivo, ip }) {
   insertar.run(usuario ?? 'anonimo', recurso ?? null, accion, resultado, motivo ?? null, ip ?? null);
 }
 
-module.exports = { registrar };
+// Filtros opcionales: usuario, resultado (PERMITIDO/DENEGADO), accion, limite
+function listar({ usuario, resultado, accion, limite = 100 } = {}) {
+  const where = [];
+  const params = [];
+  if (usuario) { where.push('usuario = ?'); params.push(usuario); }
+  if (resultado) { where.push('resultado = ?'); params.push(String(resultado).toUpperCase()); }
+  if (accion) { where.push('accion = ?'); params.push(String(accion).toUpperCase()); }
+  const sql = `SELECT * FROM auditoria ${where.length ? 'WHERE ' + where.join(' AND ') : ''} ORDER BY id DESC LIMIT ?`;
+  return db.prepare(sql).all(...params, Number(limite) || 100);
+}
+
+module.exports = { registrar, listar };
