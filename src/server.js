@@ -9,6 +9,9 @@ app.get('/api/salud', (req, res) => {
   res.json({ mensaje: 'SecureDocs funcionando' });
 });
 
+// Modulo de autenticacion
+app.use('/auth', require('./routes/auth.routes'));
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor en http://localhost:${PORT}`);
