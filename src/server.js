@@ -20,6 +20,9 @@ app.use('/rbac', require('./routes/rbac.routes'));
 // Modulo ABAC
 app.use('/abac', require('./routes/abac.routes'));
 
+// Modulo de documentos
+app.use('/documentos', require('./routes/documentos.routes'));
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor en http://localhost:${PORT}`);
