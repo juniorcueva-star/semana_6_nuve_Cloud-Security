@@ -12,6 +12,9 @@ app.get('/api/salud', (req, res) => {
 // Modulo de autenticacion
 app.use('/auth', require('./routes/auth.routes'));
 
+// Modulo RBAC
+app.use('/rbac', require('./routes/rbac.routes'));
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor en http://localhost:${PORT}`);
